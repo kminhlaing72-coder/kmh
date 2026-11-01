@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guess It! | Challenge Game</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #f8fafc;
+      background:
+        radial-gradient(circle at top left, #312e81, transparent 45%),
+        linear-gradient(135deg, #0f172a, #111827 65%, #1e1b4b);
+    }
+
+    .game {
+      width: 100%;
+      max-width: 470px;
+      padding: 32px;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 28px;
+      background: rgba(255,255,255,.07);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 25px 80px rgba(0,0,0,.35);
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 26px;
+    }
+
+    .logo {
+      display: inline-grid;
+      place-items: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      font-size: 30px;
+      background: linear-gradient(135deg, #8b5cf6, #4f46e5);
+      box-shadow: 0 8px 30px #6366f155;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: 32px;
+      letter-spacing: -1px;
+    }
+
+    .subtitle {
+      color: #a5b4fc;
+      margin-top: 7px;
+      font-size: 14px;
+    }
+
+    .section-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin: 20px 0 10px;
+    }
+
+    .modes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .mode {
+      padding: 14px 8px;
+      border: 1px solid #ffffff20;
+      border-radius: 14px;
+      color: #e2e8f0;
+      background: #ffffff08;
+      cursor: pointer;
+      font-size: 14px;
+      transition: .2s ease;
+    }
+
+    .mode:hover {
+      background: #ffffff14;
+      transform: translateY(-2px);
+    }
+
+    .mode.active {
+      border-color: #a78bfa;
+      background: #7c3aed30;
+      box-shadow: inset 0 0 0 1px #a78bfa40;
+      color: white;
+    }
+
+    .mode .emoji {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+
+    .attempt-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 25px;
+      padding: 16px;
+      background: #02061755;
+      border: 1px solid #ffffff0e;
+      border-radius: 16px;
+    }
+
+    .attempt-title {
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    .attempt-count {
+      font-size: 23px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+
+    .hearts {
+      letter-spacing: 3px;
+      font-size: 19px;
+    }
+
+    .hearts span {
+      color: #f43f5e;
+    }
+
+    .hearts span.used {
+      opacity: .2;
+    }
+
+    .question {
+      text-align: center;
+      font-size: 16px;
+      color: #e2e8f0;
+      margin: 26px 0 16px;
+    }
+
+    .guess-input {
+      width: 100%;
+      padding: 17px;
+      border-radius: 14px;
+      border: 1px solid #ffffff25;
+      outline: none;
+      background: #02061770;
+      color: white;
+      font-size: 22px;
+      text-align: center;
+      font-weight: 700;
+      transition: .2s;
+    }
+
+    .guess-input:focus {
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 3px #8b5cf633;
+    }
+
+    .guess-input::placeholder {
+      color: #64748b;
+      font-size: 16px;
+      font-weight: 400;
+    }
+
+    .guess-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      color: white;
+      font-size: 16px;
+      font-weight: 750;
+      cursor: pointer;
+      background: linear-gradient(135deg, #8b5cf6, #4f46e5);
+      box-shadow: 0 7px 22px #6366f133;
+      transition: .2s;
+    }
+
+    .guess-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: brightness(1.12);
+    }
+
+    button:disabled,
+    input:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .message {
+      min-height: 52px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 12px 4px 0;
+      color: #cbd5e1;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.success {
+      color: #86efac;
+    }
+
+    .message.error {
+      color: #fda4af;
+    }
+
+    .restart-btn {
+      display: block;
+      margin: 14px auto 0;
+      padding: 11px 20px;
+      color: #c4b5fd;
+      border: 1px solid #a78bfa55;
+      background: transparent;
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .restart-btn:hover {
+      background: #8b5cf622;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    @media (max-width: 400px) {
+      .game {
+        padding: 22px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="game">
+    <header class="brand">
+      <div class="logo">🎯</div>
+      <h1>Guess It!</h1>
+      <p class="subtitle">Think smart. Guess right. Win big.</p>
+    </header>
+
+    <label class="section-label">CHOOSE YOUR CHALLENGE</label>
+
+    <div class="modes">
+      <button class="mode active" data-mode="10">
+        <span class="emoji">🔢</span>
+        Numbers 1–10
+      </button>
+
+      <button class="mode" data-mode="100">
+        <span class="emoji">🎲</span>
+        Numbers 1–100
+      </button>
+
+      <button class="mode" data-mode="999">
+        <span class="emoji">🧠</span>
+        Numbers 1–999
+      </button>
+
+      <button class="mode" data-mode="letter">
+        <span class="emoji">🔤</span>
+        Letters A–Z
+      </button>
+    </div>
+
+    <div class="attempt-box">
+      <div>
+        <p class="attempt-title">ATTEMPTS LEFT</p>
+        <p class="attempt-count" id="attemptCount">5 / 5</p>
+      </div>
+
+      <div class="hearts" id="hearts" aria-label="5 attempts remaining">
+        <span>♥</span><span>♥</span><span>♥</span>
+        <span>♥</span><span>♥</span>
+      </div>
+    </div>
+
+    <p class="question" id="question">
+      Guess a number between 1 and 10
+    </p>
+
+    <form id="guessForm">
+      <input
+        id="guessInput"
+        class="guess-input"
+        type="number"
+        min="1"
+        max="10"
+        placeholder="Enter your guess..."
+        autocomplete="off"
+        required
+      >
+
+      <button class="guess-btn" id="guessBtn" type="submit">
+        Make a Guess →
+      </button>
+    </form>
+
+    <div
+      class="message"
+      id="message"
+      role="status"
+      aria-live="polite"
+    >
+      You have 5 chances. Make them count!
+    </div>
+
+    <button class="restart-btn" id="restartBtn">
+      ↻ New Game
+    </button>
+
+    <footer class="footer">
+      GUESS IT! · A LITTLE GAME OF LOGIC
+    </footer>
+  </main>
+
+  <script>
+    const modes = document.querySelectorAll(".mode");
+    const input = document.getElementById("guessInput");
+    const form = document.getElementById("guessForm");
+    const question = document.getElementById("question");
+    const message = document.getElementById("message");
+    const count = document.getElementById("attemptCount");
+    const hearts = document.getElementById("hearts");
+    const guessBtn = document.getElementById("guessBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    let mode = "10";
+    let answer;
+    let attempts;
+    let gameOver;
+
+    function startGame(newMode = mode) {
+      mode = newMode;
+      attempts = 5;
+      gameOver = false;
+
+      if (mode === "letter") {
+        answer = String.fromCharCode(
+          65 + Math.floor(Math.random() * 26)
+        );
+        question.textContent = "Guess a letter between A and Z";
+        input.type = "text";
+        input.min = "";
+        input.max = "";
+        input.maxLength = 1;
+        input.placeholder = "Enter a letter...";
+        input.setAttribute("aria-label", "Enter a letter from A to Z");
+      } else {
+        answer = Math.floor(Math.random() * Number(mode)) + 1;
+        question.textContent = `Guess a number between 1 and ${mode}`;
+        input.type = "number";
+        input.min = "1";
+        input.max = mode;
+        input.removeAttribute("maxLength");
+        input.placeholder = "Enter your guess...";
+        input.setAttribute("aria-label", "Enter your number guess");
+      }
+
+      modes.forEach(button => {
+        button.classList.toggle(
+          "active",
+          button.dataset.mode === mode
+        );
+      });
+
+      input.disabled = false;
+      guessBtn.disabled = false;
+      guessBtn.textContent = "Make a Guess →";
+      message.className = "message";
+      message.textContent = "You have 5 chances. Make them count!";
+      input.value = "";
+      updateAttempts();
+      input.focus();
+    }
+
+    function updateAttempts() {
+      count.textContent = `${attempts} / 5`;
+
+      hearts.innerHTML = Array.from({ length: 5 }, (_, i) => {
+        const usedClass = i >= attempts ? "used" : "";
+        return `<span class="${usedClass}">♥</span>`;
+      }).join("");
+
+      hearts.setAttribute(
+        "aria-label",
+        `${attempts} attempts remaining`
+      );
+    }
+
+    function endGame(won) {
+      gameOver = true;
+      input.disabled = true;
+      guessBtn.disabled = true;
+
+      if (won) {
+        message.className = "message success";
+        message.textContent = `🎉 Correct! The answer was ${answer}. You won!`;
+        guessBtn.textContent = "You Won! ✓";
+      } else {
+        message.className = "message error";
+        message.textContent = `😢 Out of attempts! The answer was ${answer}. Try again!`;
+        guessBtn.textContent = "Game Over";
+      }
+    }
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+
+      if (gameOver) return;
+
+      let guess;
+
+      if (mode === "letter") {
+        guess = input.value.trim().toUpperCase();
+
+        if (!/^[A-Z]$/.test(guess)) {
+          message.className = "message error";
+          message.textContent = "Please enter one letter from A to Z.";
+          return;
+        }
+      } else {
+        const raw = input.value.trim();
+        guess = Number(raw);
+
+        if (
+          raw === "" ||
+          !Number.isInteger(guess) ||
+          guess < 1 ||
+          guess > Number(mode)
+        ) {
+          message.className = "message error";
+          message.textContent = `Enter a whole number from 1 to ${mode}.`;
+          return;
+        }
+      }
+
+      attempts--;
+      updateAttempts();
+
+      if (guess === answer) {
+        endGame(true);
+        return;
+      }
+
+      if (attempts === 0) {
+        endGame(false);
+        return;
+      }
+
+      message.className = "message";
+
+      if (mode === "letter") {
+        message.textContent = guess < answer
+          ? `📈 ${guess} comes before the answer alphabetically!`
+          : `📉 ${guess} comes after the answer alphabetically!`;
+      } else {
+        message.textContent = guess < answer
+          ? "📈 Too low! Try a higher number."
+          : "📉 Too high! Try a lower number.";
+      }
+
+      input.value = "";
+      input.focus();
+    });
+
+    modes.forEach(button => {
+      button.addEventListener("click", () => {
+        startGame(button.dataset.mode);
+      });
+    });
+
+    restartBtn.addEventListener("click", () => {
+      startGame(mode);
+    });
+
+    startGame();
+  </script>
+</body>
+</html>
