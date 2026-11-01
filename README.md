@@ -1,2 +1,0 @@
-# kmh
-Snap photos
